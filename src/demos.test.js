@@ -16,21 +16,30 @@ describe('demo scenarios', () => {
 
   for (const demo of DEMOS) {
     describe(demo.title, () => {
-      const accounts = demo.state.accounts.map(a => ({
+      const currentAccounts = demo.state.accounts.map(a => ({
         name: fundIdentifier(a),
-        balanceCents: a.status === 'new' ? 0 : toCents(parseDollarInput(a.balance)),
-        status: a.status,
+        balanceCents: toCents(parseDollarInput(a.balance)),
+        status:
+          demo.state.targets.some(
+            target =>
+              target.name === fundIdentifier(a) &&
+              (target.status === 'close' || Number(target.targetValue) === 0)
+          )
+            ? 'close'
+            : 'keep',
       }));
+      const newAccounts = demo.state.targets
+        .filter(target => target.source === 'new')
+        .map(target => ({ name: fundIdentifier(target), balanceCents: 0, status: 'new' }));
+      const accounts = [...currentAccounts, ...newAccounts];
 
       it('has no blank or duplicate fund identifiers', () => {
         expect(accounts.every(a => a.name !== '')).toBe(true);
         expect(findDuplicateIdentifiers(demo.state.accounts)).toEqual([]);
       });
 
-      it('targets reference existing non-closing funds and validate', () => {
-        const names = new Set(
-          demo.state.accounts.filter(a => a.status !== 'close').map(a => fundIdentifier(a))
-        );
+      it('targets reference existing funds and validate', () => {
+        const names = new Set(accounts.map(a => a.name));
         for (const t of demo.state.targets) {
           expect(names.has(t.name)).toBe(true);
         }

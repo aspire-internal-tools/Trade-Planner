@@ -369,8 +369,9 @@ export function validateTargets(accounts, targets) {
   const warnings = [];
   for (const t of targets) {
     const cents = targetMap.get(t.name) || 0;
-    if (cents === 0) {
-      warnings.push(`${t.name} has a 0% target. No money will be allocated to it. Did you mean to include it?`);
+    const matchingAccount = accounts.find(account => account.name === t.name);
+    if (cents === 0 && (t.source === 'new' || matchingAccount?.status === 'new')) {
+      warnings.push(`${t.name} is a new fund with a 0% target. Enter an amount or percentage, or remove it.`);
     }
   }
 

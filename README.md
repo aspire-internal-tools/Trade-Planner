@@ -55,6 +55,11 @@ The switch made the growing app easier to maintain and test. The interface can b
 
 All computation runs client side in the browser. No data is transmitted anywhere.
 
+The entry workflow has a strict boundary:
+
+- **Current State** captures only funds held today. Enter fund amounts, or enter the account total and current percentages.
+- **Target Funds** contains every proposed outcome, including changed allocations, closed funds, and new destination funds.
+
 See `../CHANGELOG.md` for version history.
 
 ## Temporary GitHub Pages Pilot

@@ -1,25 +1,46 @@
 import { fundIdentifier } from './funds.js';
 
-// Keep the Step 2 target list in step with the Step 1 fund list.
-// Targets are keyed by the fund identifier (code, or description as
-// fallback). Closing funds and blank rows get no target row.
+// Keep current holdings represented in Step 2 while preserving target-only
+// funds. Current State contains facts only. Every proposed close, allocation
+// change, and new fund belongs to Target Funds.
 export function syncTargetsToAccounts(accounts, previousTargets) {
-  const destinationNames = accounts
-    .filter(account => account.status !== 'close')
-    .map(account => fundIdentifier(account))
-    .filter(name => name !== '');
+  const currentTargets = accounts
+    .filter(account => fundIdentifier(account) !== '')
+    .map(account => {
+      const name = fundIdentifier(account);
+      const existing = previousTargets.find(
+        target =>
+          target.sourceAccountId === account.id ||
+          (!target.sourceAccountId && target.source !== 'new' && target.name === name)
+      );
+      return {
+        ...(existing || {}),
+        id: existing?.id || `current-${account.id}`,
+        source: 'current',
+        sourceAccountId: account.id,
+        name,
+        code: account.code,
+        description: account.description,
+        targetType: existing?.targetType || 'percentage',
+        targetValue: existing?.targetValue ?? 0,
+        status: existing?.status || 'target',
+      };
+    });
 
-  const nextTargets = destinationNames.map(name => {
-    const existing = previousTargets.find(target => target.name === name);
-    return existing || { name, targetType: 'percentage', targetValue: 0 };
-  });
+  const newTargets = previousTargets.filter(target => target.source === 'new');
+  const nextTargets = [...currentTargets, ...newTargets];
 
-  if (
-    nextTargets.length === previousTargets.length
-    && nextTargets.every((target, index) => target.name === previousTargets[index].name)
-  ) {
-    return previousTargets;
-  }
+  const unchanged =
+    nextTargets.length === previousTargets.length &&
+    nextTargets.every((target, index) => {
+      const previous = previousTargets[index];
+      return (
+        target.id === previous.id &&
+        target.name === previous.name &&
+        target.code === previous.code &&
+        target.description === previous.description
+      );
+    });
 
-  return nextTargets;
+  return unchanged ? previousTargets : nextTargets;
 }

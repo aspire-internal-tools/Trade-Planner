@@ -38,12 +38,13 @@ export const DEMOS = [
     state: {
       mode: 'single',
       accounts: [
-        { code: 'FND 201', description: 'Money Market', balance: '20000.00', status: 'close' },
+        { code: 'FND 201', description: 'Money Market', balance: '20000.00' },
         { code: 'FND 202', description: 'Global Balanced', balance: '40000.00', status: 'keep' },
         { code: 'FND 203', description: 'Canadian Bond', balance: '25000.00', status: 'keep' },
         { code: 'FND 204', description: 'Global Equity', balance: '15000.00', status: 'keep' },
       ],
       targets: [
+        { name: 'FND 201', targetType: 'percentage', targetValue: 0, status: 'close' },
         { name: 'FND 202', targetType: 'percentage', targetValue: 45 },
         { name: 'FND 203', targetType: 'percentage', targetValue: 20 },
         { name: 'FND 204', targetType: 'percentage', targetValue: 35 },
@@ -62,13 +63,19 @@ export const DEMOS = [
         { code: 'FND 301', description: 'Dividend Growth', balance: '55000.00', status: 'keep' },
         { code: 'FND 302', description: 'Global Bond', balance: '30000.00', status: 'keep' },
         { code: 'FND 303', description: 'Canadian Equity', balance: '15000.00', status: 'keep' },
-        { code: 'FND 304', description: 'Emerging Markets', balance: '', status: 'new' },
       ],
       targets: [
         { name: 'FND 301', targetType: 'percentage', targetValue: 50 },
         { name: 'FND 302', targetType: 'percentage', targetValue: 25 },
         { name: 'FND 303', targetType: 'percentage', targetValue: 10 },
-        { name: 'FND 304', targetType: 'percentage', targetValue: 15 },
+        {
+          source: 'new',
+          code: 'FND 304',
+          description: 'Emerging Markets',
+          name: 'FND 304',
+          targetType: 'percentage',
+          targetValue: 15,
+        },
       ],
       constraints: { maxTransfers: 2 },
     },

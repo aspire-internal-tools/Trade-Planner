@@ -43,8 +43,22 @@ class ErrorBoundary extends Component {
 
 // ─── State helpers ─────────────────────────────────────────
 let nextId = 1;
-function makeAccount(code = '', description = '', balance = '', status = 'keep') {
-  return { id: nextId++, code, description, balance, status };
+let nextTargetId = 1;
+function makeAccount(code = '', description = '', balance = '', percentage = '') {
+  return { id: nextId++, code, description, balance, percentage };
+}
+
+function makeTarget(code = '', description = '', targetType = 'percentage', targetValue = '') {
+  return {
+    id: `new-${nextTargetId++}`,
+    source: 'new',
+    name: code.trim() || description.trim(),
+    code,
+    description,
+    targetType,
+    targetValue,
+    status: 'target',
+  };
 }
 
 const DEFAULT_CONSTRAINTS = { maxTransfers: null };
@@ -57,6 +71,8 @@ function blankAccounts() {
 function AppInner() {
   const [accounts, setAccounts] = useState(blankAccounts);
   const [targets, setTargets] = useState([]);
+  const [currentEntryMode, setCurrentEntryMode] = useState('amount');
+  const [currentTotal, setCurrentTotal] = useState('');
   const [constraints, setConstraints] = useState(DEFAULT_CONSTRAINTS);
   const [mode, setMode] = useState('single');
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -69,16 +85,44 @@ function AppInner() {
   };
 
   // Anything typed on the page means destructive actions need confirmation.
-  const hasEnteredData = accounts.some(
-    a => a.code.trim() || a.description.trim() || String(a.balance).trim()
-  );
+  const hasEnteredData =
+    accounts.some(a => a.code.trim() || a.description.trim() || String(a.balance).trim()) ||
+    targets.some(target => target.source === 'new');
 
   const applyState = state => {
     const nextAccounts = state.accounts.map(a =>
-      makeAccount(a.code, a.description, a.balance, a.status)
+      makeAccount(a.code || '', a.description || '', a.balance || '', a.percentage || '')
     );
+    const suppliedTargets = (state.targets || []).map(target => {
+      if (target.source === 'new') {
+        return {
+          ...makeTarget(
+            target.code || '',
+            target.description || '',
+            target.targetType,
+            target.targetValue
+          ),
+          status: target.status || 'target',
+        };
+      }
+      const accountIndex = state.accounts.findIndex(
+        account => fundIdentifier(account) === target.name
+      );
+      const account = nextAccounts[accountIndex];
+      return {
+        ...target,
+        id: account ? `current-${account.id}` : target.id,
+        source: 'current',
+        sourceAccountId: account?.id,
+        code: account?.code || target.code || '',
+        description: account?.description || target.description || '',
+        status: target.status || 'target',
+      };
+    });
     setAccounts(nextAccounts);
-    setTargets(syncTargetsToAccounts(nextAccounts, state.targets || []));
+    setTargets(syncTargetsToAccounts(nextAccounts, suppliedTargets));
+    setCurrentEntryMode(state.currentEntryMode || 'amount');
+    setCurrentTotal(state.currentTotal || '');
     setConstraints(state.constraints || DEFAULT_CONSTRAINTS);
     setMode(state.mode || 'single');
   };
@@ -121,16 +165,35 @@ function AppInner() {
 
   // Derived data
   const accountsForEngine = useMemo(
-    () =>
-      accounts.map(a => ({
-        name: fundIdentifier(a),
-        balanceCents: a.status === 'new' ? 0 : toCents(parseDollarInput(a.balance)),
-        status: a.status,
-      })),
-    [accounts]
+    () => {
+      const targetByAccountId = new Map(
+        targets
+          .filter(target => target.source === 'current')
+          .map(target => [target.sourceAccountId, target])
+      );
+      const current = accounts.map(account => {
+        const target = targetByAccountId.get(account.id);
+        const closing =
+          target && (target.status === 'close' || Number(target.targetValue) === 0);
+        return {
+          name: fundIdentifier(account),
+          balanceCents: toCents(parseDollarInput(account.balance)),
+          status: closing ? 'close' : 'keep',
+        };
+      });
+      const added = targets
+        .filter(target => target.source === 'new' && !fundIsBlank(target))
+        .map(target => ({
+          name: fundIdentifier(target),
+          balanceCents: 0,
+          status: 'new',
+        }));
+      return [...current, ...added];
+    },
+    [accounts, targets]
   );
 
-  const lookup = useMemo(() => buildFundLookup(accounts), [accounts]);
+  const lookup = useMemo(() => buildFundLookup([...accounts, ...targets]), [accounts, targets]);
 
   const totalPoolCents = useMemo(
     () => accountsForEngine.reduce((s, a) => s + a.balanceCents, 0),
@@ -138,7 +201,17 @@ function AppInner() {
   );
 
   const validation = useMemo(
-    () => validateTargets(accountsForEngine, targets),
+    () =>
+      validateTargets(
+        accountsForEngine,
+        targets
+          .filter(target => !fundIsBlank(target))
+          .map(target => ({
+            ...target,
+            name: fundIdentifier(target),
+            targetValue: target.status === 'close' ? 0 : Number(target.targetValue) || 0,
+          }))
+      ),
     [accountsForEngine, targets]
   );
 
@@ -159,12 +232,22 @@ function AppInner() {
   const plan = useMemo(() => {
     if (!validation.valid || !validation.targetMap) return null;
     if (accounts.some(a => fundIsBlank(a))) return null;
+    if (targets.some(target => fundIsBlank(target))) return null;
     if (findDuplicateIdentifiers(accounts).length > 0) return null;
+    if (findDuplicateIdentifiers(targets).length > 0) return null;
+    if (
+      currentEntryMode === 'percentage' &&
+      Math.abs(
+        accounts.reduce((sum, account) => sum + (Number(account.percentage) || 0), 0) - 100
+      ) > 0.001
+    ) {
+      return null;
+    }
 
     return computeTradePlan(accountsForEngine, validation.targetMap, {
       maxTransfers: constraints.maxTransfers,
     });
-  }, [accountsForEngine, validation, constraints, accounts]);
+  }, [accountsForEngine, validation, constraints, accounts, targets, currentEntryMode]);
 
   const order = useMemo(() => (plan ? buildOrder(plan) : null), [plan]);
 
@@ -202,13 +285,21 @@ function AppInner() {
       </header>
 
       <div className="space-y-6 no-print">
-        <CurrentState accounts={accounts} setAccounts={updateAccounts} makeAccount={makeAccount} />
+        <CurrentState
+          accounts={accounts}
+          setAccounts={updateAccounts}
+          makeAccount={makeAccount}
+          entryMode={currentEntryMode}
+          setEntryMode={setCurrentEntryMode}
+          enteredTotal={currentTotal}
+          setEnteredTotal={setCurrentTotal}
+        />
         <TargetFunds
           targets={targets}
           setTargets={setTargets}
           totalPoolCents={totalPoolCents}
           validation={validation}
-          lookup={lookup}
+          makeTarget={makeTarget}
         />
         <TradeControls
           mode={mode}
