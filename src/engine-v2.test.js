@@ -1,16 +1,18 @@
 import { describe, it, expect } from 'vitest';
-import { computeTradePlan, buildOrder, formatPercent } from './engine';
+import { computeTradePlan, buildOrder, formatPercent, formatPercentValue } from './engine';
 
 describe('formatPercent', () => {
-  it('formats a share to two decimals', () => {
+  it('uses up to two decimals and removes trailing zeros', () => {
     expect(formatPercent(6667, 10000)).toBe('66.67%');
-    expect(formatPercent(5000, 10000)).toBe('50.00%');
-    expect(formatPercent(10000, 10000)).toBe('100.00%');
+    expect(formatPercent(5000, 10000)).toBe('50%');
+    expect(formatPercent(10000, 10000)).toBe('100%');
+    expect(formatPercentValue(40.5)).toBe('40.5%');
+    expect(formatPercentValue(2, { signed: true })).toBe('+2%');
   });
 
   it('handles a zero whole without dividing by zero', () => {
-    expect(formatPercent(0, 0)).toBe('0.00%');
-    expect(formatPercent(500, 0)).toBe('0.00%');
+    expect(formatPercent(0, 0)).toBe('0%');
+    expect(formatPercent(500, 0)).toBe('0%');
   });
 });
 

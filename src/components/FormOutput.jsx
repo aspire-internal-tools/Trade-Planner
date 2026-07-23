@@ -6,7 +6,7 @@ import { fillForm, downloadPdf, FormFillError } from '../pdf/fill-form';
 // ─── Form Output: partially filled insurer PDFs ────────────
 // Fills ONLY the From and To fund rows (code, description, amount) on the
 // selected blank form and downloads it. Every other field stays blank and
-// fillable. Amounts can be written as dollars or as two-decimal
+// fillable. Amounts can be written as dollars or as percentages with up to two
 // percentages, since processors set up trades either way.
 export default function FormOutput({ plan, mode, order, lookup }) {
   const [formId, setFormId] = useState(mode === 'multi' ? 'quadrus-two-sided' : 'seg-switch');

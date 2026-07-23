@@ -13,7 +13,7 @@ function samplePlan() {
     ['Account B', 0],
     ['Account C', 750000],
   ]);
-  return computeTradePlan(accounts, targetMap, { toleranceType: 'exact', toleranceValue: 0 });
+  return computeTradePlan(accounts, targetMap);
 }
 
 function sampleLookup() {
@@ -33,18 +33,15 @@ describe('buildPlanText', () => {
     expect(text).toContain('$7,500.00');
   });
 
-  it('pairs every trade amount with a two-decimal percentage', () => {
+  it('pairs every trade amount with a percentage without trailing zeros', () => {
     const text = buildPlanText(samplePlan());
-    // Account B (closing) sends its full $5,000.00, which is 100.00% of its balance
-    expect(text).toContain('$5,000.00 (100.00% of Account B)');
-    // Account A sends $2,500.00 of its $10,000.00, which is 25.00%
-    expect(text).toContain('$2,500.00 (25.00% of Account A)');
+    expect(text).toContain('$5,000.00 (100% of Account B)');
+    expect(text).toContain('$2,500.00 (25% of Account A)');
   });
 
-  it('shows two-decimal percentages in the results summary rows', () => {
+  it('removes trailing zeros in the results summary rows', () => {
     const text = buildPlanText(samplePlan());
-    // Account A ends at $7,500.00 of $15,000.00, which is 50.00%
-    expect(text).toContain('(50.00%)');
+    expect(text).toContain('(50%)');
   });
 
   it('uses the renamed column headers', () => {
@@ -73,8 +70,7 @@ describe('buildPlanText', () => {
     expect(text).toContain('One consolidated order (multi-from internal transfer)');
     expect(text).toContain('FROM (money out):');
     expect(text).toContain('TO (money in):');
-    // Account C receives the full $7,500.00 moved, 100.00% of the order
-    expect(text).toContain('$7,500.00 (100.00% of the order)');
+    expect(text).toContain('$7,500.00 (100% of the order)');
   });
 });
 
@@ -93,7 +89,7 @@ describe('buildPlanHtml', () => {
   it('adds a percent column to the trade table', () => {
     const html = buildPlanHtml(samplePlan());
     expect(html).toContain('>Percent</th>');
-    expect(html).toContain('100.00% of fund');
+    expect(html).toContain('100% of fund');
   });
 
   it('carries fund code and description columns in the results summary', () => {
@@ -142,10 +138,7 @@ describe('buildPlanHtml', () => {
       ['Account A', 500000],
       ['Account B', 500000],
     ]);
-    const plan = computeTradePlan(accounts, targetMap, {
-      toleranceType: 'exact',
-      toleranceValue: 0,
-    });
+    const plan = computeTradePlan(accounts, targetMap);
     expect(plan.transfers.length).toBe(0);
     const html = buildPlanHtml(plan);
     expect(html.match(/<table/g).length).toBe(1);

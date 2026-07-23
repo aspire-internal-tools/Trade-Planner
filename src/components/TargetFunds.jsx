@@ -1,9 +1,9 @@
-import { formatMoney } from '../engine';
+import { formatMoney, formatPercentValue } from '../engine';
 
 // ─── Step 2: Target Funds ──────────────────────────────────
 // Targets are keyed by fund identifier; the table shows both the code and
 // the description so the fund is recognizable either way. Every dollar
-// figure is paired with its two-decimal percentage.
+// figure is paired with its percentage, using up to two decimals.
 export default function TargetFunds({ targets, setTargets, totalPoolCents, validation, lookup }) {
   const updateTarget = (name, field, value) => {
     setTargets(prev => prev.map(t => (t.name === name ? { ...t, [field]: value } : t)));
@@ -68,7 +68,7 @@ export default function TargetFunds({ targets, setTargets, totalPoolCents, valid
                 const f = fundOf(t.name);
                 const targetCents = validation.targetMap ? validation.targetMap.get(t.name) || 0 : 0;
                 const impliedPct =
-                  totalPoolCents > 0 ? ((targetCents / totalPoolCents) * 100).toFixed(2) : '0.00';
+                  totalPoolCents > 0 ? (targetCents / totalPoolCents) * 100 : 0;
                 return (
                   <tr key={`${idx}-${t.name}`} className="border-b last:border-b-0">
                     <td className="py-2 pr-2 font-medium">{f.code}</td>
@@ -104,7 +104,9 @@ export default function TargetFunds({ targets, setTargets, totalPoolCents, valid
                     <td className="py-2 pr-2 text-right text-gray-500 font-mono">
                       {formatMoney(targetCents)}
                     </td>
-                    <td className="py-2 pr-2 text-right text-gray-500">{impliedPct}%</td>
+                    <td className="py-2 pr-2 text-right text-gray-500">
+                      {formatPercentValue(impliedPct)}
+                    </td>
                   </tr>
                 );
               })}
@@ -128,7 +130,7 @@ export default function TargetFunds({ targets, setTargets, totalPoolCents, valid
 
       {validation.valid && targets.length > 0 && (
         <div className="mt-3 text-green-600 text-sm bg-green-50 rounded px-3 py-2">
-          Targets are valid. Total: {formatMoney(validation.totalTargetCents)} (100.00%)
+          Targets are valid. Total: {formatMoney(validation.totalTargetCents)} (100%)
         </div>
       )}
 

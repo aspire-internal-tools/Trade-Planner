@@ -47,7 +47,7 @@ function makeAccount(code = '', description = '', balance = '', status = 'keep')
   return { id: nextId++, code, description, balance, status };
 }
 
-const DEFAULT_CONSTRAINTS = { maxTransfers: null, toleranceType: 'exact', toleranceValue: 0 };
+const DEFAULT_CONSTRAINTS = { maxTransfers: null };
 
 function blankAccounts() {
   return [makeAccount(), makeAccount()];
@@ -163,8 +163,6 @@ function AppInner() {
 
     return computeTradePlan(accountsForEngine, validation.targetMap, {
       maxTransfers: constraints.maxTransfers,
-      toleranceType: constraints.toleranceType,
-      toleranceValue: constraints.toleranceValue,
     });
   }, [accountsForEngine, validation, constraints, accounts]);
 

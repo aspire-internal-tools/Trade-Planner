@@ -2,9 +2,9 @@
 
 Plan fund trades while minimizing the number of trade events and getting ending balances as close as possible to the target balances. Built for Aspire Investments and Insurance.
 
-Formerly called the Transfer Planner (v1.0.0 and v1.1.0). Terminology follows the insurer forms: trades move money between funds, and the tool reports starting, target, and ending balances for each fund, with a two-decimal percentage beside every dollar amount.
+Formerly called the Transfer Planner (v1.0.0 and v1.1.0). Terminology follows the insurer forms: trades move money between funds, and the tool reports starting, target, and ending balances for each fund. Percentages use up to two decimals and omit trailing zeros.
 
-As of v2.0.0 the tool supports two trade structures (single-from trades and one consolidated multi-from order), captures fund code and fund description as separate fields (either identifies a fund), and can download either insurer form as a partially filled PDF with all other fields left blank and fillable. An About panel carries the purpose, the data statement, and five loadable demos.
+The trade-count selector compares fewer-trade plans with the exact-target plan. Results are never filtered by a tolerance setting. Every ending allocation remains visible, and a review warning appears when a fund ends more than 5 percentage points from target.
 
 ## Source layout
 

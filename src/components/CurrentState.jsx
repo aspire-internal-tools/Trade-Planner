@@ -1,4 +1,4 @@
-import { toCents, formatMoney } from '../engine';
+import { toCents, formatMoney, formatPercentValue } from '../engine';
 import { parsePastedRows, applyPastedRows } from '../paste';
 import { fundIsBlank, findDuplicateIdentifiers } from '../funds';
 import { parseDollarInput } from '../money-input';
@@ -59,7 +59,7 @@ export default function CurrentState({ accounts, setAccounts, makeAccount }) {
           <tbody>
             {accounts.map(acct => {
               const cents = acct.status === 'new' ? 0 : toCents(parseDollarInput(acct.balance));
-              const pct = totalCents > 0 ? ((cents / totalCents) * 100).toFixed(2) : '0.00';
+              const pct = totalCents > 0 ? (cents / totalCents) * 100 : 0;
               return (
                 <tr key={acct.id} className="border-b last:border-b-0">
                   <td className="py-2 pr-2">
@@ -111,7 +111,9 @@ export default function CurrentState({ accounts, setAccounts, makeAccount }) {
                       <option value="new">New</option>
                     </select>
                   </td>
-                  <td className="py-2 pr-2 text-right text-gray-500">{pct}%</td>
+                  <td className="py-2 pr-2 text-right text-gray-500">
+                    {formatPercentValue(pct)}
+                  </td>
                   <td className="py-2">
                     <button
                       onClick={() => removeAccount(acct.id)}

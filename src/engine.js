@@ -15,14 +15,21 @@ export function toDollars(cents) {
   return (cents / 100).toFixed(2);
 }
 
+/** Format a percentage to at most two decimals, without trailing zeros. */
+export function formatPercentValue(value, { signed = false } = {}) {
+  const rounded = Math.abs(value) < 0.005 ? 0 : value;
+  const number = rounded.toFixed(2).replace(/\.?0+$/, '');
+  return `${signed && rounded > 0 ? '+' : ''}${number}%`;
+}
+
 /**
- * Format a share of a whole as a percentage string with two decimals,
- * e.g. formatPercent(6667, 10000) === '66.67%'. Advisors and processors
- * plan in percentages, so this appears beside dollar amounts everywhere.
+ * Format a share of a whole as a percentage string with at most two decimals.
+ * Advisors and processors plan in percentages, so this appears beside dollar
+ * amounts throughout the plan.
  */
 export function formatPercent(partCents, wholeCents) {
-  if (!wholeCents) return '0.00%';
-  return ((partCents / wholeCents) * 100).toFixed(2) + '%';
+  if (!wholeCents) return '0%';
+  return formatPercentValue((partCents / wholeCents) * 100);
 }
 
 /** Format cents as display currency */
@@ -108,7 +115,7 @@ export function computeTargetsCents(accounts, targets, totalPoolCents) {
  *
  * accounts: [{ name, balanceCents, status: 'keep'|'close'|'new' }]
  * targetMap: Map<name, targetCents> (from computeTargetsCents)
- * options: { maxTransfers?, toleranceType: 'exact'|'percent'|'dollar', toleranceValue: number }
+ * options: { maxTransfers? }
  *
  * Returns: {
  *   transfers: [{ from, distributions: [{ to, amountCents }] }],
@@ -119,7 +126,7 @@ export function computeTargetsCents(accounts, targets, totalPoolCents) {
  * }
  */
 export function computeTradePlan(accounts, targetMap, options = {}) {
-  const { maxTransfers, toleranceType = 'exact', toleranceValue = 0 } = options;
+  const { maxTransfers } = options;
 
   // Build delta list
   const deltas = []; // { name, deltaCents, status }
@@ -137,7 +144,7 @@ export function computeTradePlan(accounts, targetMap, options = {}) {
   }
 
   // Separate into surplus and deficit
-  let surplusList = deltas
+  const surplusList = deltas
     .filter(d => d.deltaCents > 0)
     .sort((a, b) => {
       // Closing accounts first (mandatory), then by size descending
@@ -146,28 +153,13 @@ export function computeTradePlan(accounts, targetMap, options = {}) {
       return b.deltaCents - a.deltaCents;
     });
 
-  let deficitList = deltas
+  const deficitList = deltas
     .filter(d => d.deltaCents < 0)
     .map(d => ({ ...d, deltaCents: -d.deltaCents })) // make positive for easier math
     .sort((a, b) => b.deltaCents - a.deltaCents);
 
   // Count mandatory transfers (closing accounts)
   const mandatoryTransfers = surplusList.filter(s => s.status === 'close').length;
-
-  // Apply tolerance to skip small surpluses (but never skip closing accounts)
-  if (toleranceType !== 'exact') {
-    const totalPool = accounts.reduce((sum, a) => sum + a.balanceCents, 0);
-    surplusList = surplusList.filter(s => {
-      if (s.status === 'close') return true; // mandatory
-      if (toleranceType === 'percent') {
-        const thresholdCents = Math.round(totalPool * (toleranceValue / 100));
-        return s.deltaCents > thresholdCents;
-      } else if (toleranceType === 'dollar') {
-        return s.deltaCents > toCents(toleranceValue);
-      }
-      return true;
-    });
-  }
 
   const minTransfersNeeded = surplusList.length;
 
@@ -225,14 +217,14 @@ export function computeTradePlan(accounts, targetMap, options = {}) {
 
   const results = buildResults(accounts, targetMap, transfers);
 
-  // Check if we achieved targets within tolerance
+  // Explain the trade-off when fewer source funds are used.
   let achievedMessage = null;
   if (maxTransfers !== undefined && maxTransfers !== null && maxTransfers < minTransfersNeeded) {
     const maxDev = results.reduce((max, r) => {
       if (r.status === 'close') return max;
       return Math.max(max, Math.abs(r.deviationPercent));
     }, 0);
-    achievedMessage = `With ${maxTransfers} trade(s), best achievable deviation is ${maxDev.toFixed(1)}%. Using ${minTransfersNeeded} trades would achieve all targets within tolerance.`;
+    achievedMessage = `Using ${maxTransfers} trade${maxTransfers === 1 ? '' : 's'} leaves a largest imbalance of ${formatPercentValue(maxDev)}. Use ${minTransfersNeeded} trades to reach the exact targets.`;
   }
 
   return {
@@ -360,7 +352,7 @@ export function validateTargets(accounts, targets) {
     // All percentage targets - must sum to 100%
     if (Math.abs(percentSum - 100) > 0.001) {
       valid = false;
-      message = `Percentage targets sum to ${percentSum.toFixed(2)}%, not 100%.`;
+      message = `Percentage targets sum to ${formatPercentValue(percentSum)}, not 100%.`;
     }
   } else {
     // Mixed: percentages should represent remaining pool after fixed dollars
@@ -369,7 +361,7 @@ export function validateTargets(accounts, targets) {
       message = `Fixed dollar amounts (${formatMoney(fixedCents)}) exceed the total balance (${formatMoney(totalPoolCents)}).`;
     } else if (Math.abs(percentSum - 100) > 0.001) {
       valid = false;
-      message = `Percentage targets must sum to 100% of the remaining balance. Currently: ${percentSum.toFixed(2)}%.`;
+      message = `Percentage targets must sum to 100% of the remaining balance. Currently: ${formatPercentValue(percentSum)}.`;
     }
   }
 

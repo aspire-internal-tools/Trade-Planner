@@ -47,6 +47,15 @@ describe('demo scenarios', () => {
         const end = plan.results.reduce((s, r) => s + r.endCents, 0);
         expect(end).toBe(start);
       });
+
+      it('showcases a reduced-trade option and an exact-target option', () => {
+        const validation = validateTargets(accounts, demo.state.targets);
+        const reducedPlan = computeTradePlan(accounts, validation.targetMap, demo.state.constraints);
+        const exactPlan = computeTradePlan(accounts, validation.targetMap);
+        expect(exactPlan.minTransfersNeeded).toBeGreaterThan(1);
+        expect(reducedPlan.transfers.length).toBeLessThan(exactPlan.transfers.length);
+        expect(exactPlan.results.every(r => Math.abs(r.deviationCents) === 0)).toBe(true);
+      });
     });
   }
 });

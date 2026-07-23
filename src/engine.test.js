@@ -353,8 +353,8 @@ describe('Test 10: One Large Source, Many Small Destinations', () => {
   });
 });
 
-describe('Test 11: Tight Tolerance Requires More Transfers', () => {
-  it('exact tolerance may require more transfers than relaxed', () => {
+describe('Test 11: Trade Count Comparison', () => {
+  it('shows a reduced-trade plan without hiding ending imbalances', () => {
     const accounts = [
       acct('A', 25000, 'keep'),
       acct('B', 22000, 'keep'),
@@ -372,25 +372,19 @@ describe('Test 11: Tight Tolerance Requires More Transfers', () => {
     ];
     const targetMap = computeTargetsCents(accounts, targets, total);
 
-    const exactPlan = computeTradePlan(accounts, targetMap, {
-      toleranceType: 'exact',
-      toleranceValue: 0,
-    });
+    const exactPlan = computeTradePlan(accounts, targetMap);
+    const reducedPlan = computeTradePlan(accounts, targetMap, { maxTransfers: 1 });
 
-    const relaxedPlan = computeTradePlan(accounts, targetMap, {
-      toleranceType: 'percent',
-      toleranceValue: 3,
-    });
-
-    // Relaxed should require <= exact transfers
-    expect(relaxedPlan.transfers.length).toBeLessThanOrEqual(exactPlan.transfers.length);
+    expect(reducedPlan.transfers.length).toBe(1);
+    expect(exactPlan.transfers.length).toBeGreaterThan(reducedPlan.transfers.length);
+    expect(reducedPlan.results.some(r => Math.abs(r.deviationPercent) > 0)).toBe(true);
     assertMoneyConserved(accounts, exactPlan);
-    assertMoneyConserved(accounts, relaxedPlan);
+    assertMoneyConserved(accounts, reducedPlan);
   });
 });
 
-describe('Test 12: Generous Tolerance Reduces Transfers', () => {
-  it('2% tolerance should reduce transfer count', () => {
+describe('Test 12: No Tolerance Filtering', () => {
+  it('uses every surplus fund unless the advisor selects fewer trades', () => {
     const accounts = [
       acct('A', 17500, 'keep'),
       acct('B', 16000, 'keep'),
@@ -410,16 +404,13 @@ describe('Test 12: Generous Tolerance Reduces Transfers', () => {
     ];
     const targetMap = computeTargetsCents(accounts, targets, total);
 
-    const exactPlan = computeTradePlan(accounts, targetMap, {
-      toleranceType: 'exact',
-    });
-    const tolerantPlan = computeTradePlan(accounts, targetMap, {
-      toleranceType: 'percent',
-      toleranceValue: 2,
-    });
+    const exactPlan = computeTradePlan(accounts, targetMap);
+    const reducedPlan = computeTradePlan(accounts, targetMap, { maxTransfers: 1 });
 
-    expect(tolerantPlan.transfers.length).toBeLessThanOrEqual(exactPlan.transfers.length);
-    assertMoneyConserved(accounts, tolerantPlan);
+    expect(exactPlan.transfers.length).toBe(exactPlan.minTransfersNeeded);
+    expect(reducedPlan.transfers.length).toBe(1);
+    expect(reducedPlan.message).toContain('largest imbalance');
+    assertMoneyConserved(accounts, reducedPlan);
   });
 });
 

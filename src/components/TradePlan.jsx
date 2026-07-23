@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
-import { formatMoney, formatPercent } from '../engine';
+import { formatMoney, formatPercent, formatPercentValue } from '../engine';
 import { copyPlanToClipboard } from '../clipboard';
 import FormOutput from './FormOutput.jsx';
 
 // ─── Step 4: Trade Plan Output ─────────────────────────────
 // Single-From mode shows one card per trade; Multi-From mode shows one
 // consolidated two-sided order. Every dollar amount is paired with a
-// two-decimal percentage: From amounts as a share of that fund's starting
+// percentage with up to two decimals: From amounts as a share of that fund's starting
 // balance (what a processor types on a switch), To amounts as a share of
 // the money being moved, and summary rows as shares of the total account.
+const IMBALANCE_WARNING_PERCENT = 5;
 export default function TradePlan({ plan, mode, order, lookup }) {
   const [copyState, setCopyState] = useState(null); // null | 'copied' | 'failed'
   const copiedTimer = useRef(null);
@@ -19,6 +20,9 @@ export default function TradePlan({ plan, mode, order, lookup }) {
 
   const label = name => (lookup && lookup.get(name) ? lookup.get(name).label : name);
   const starts = new Map(plan.results.map(r => [r.name, r.startCents]));
+  const flaggedResults = plan.results.filter(
+    r => r.status !== 'close' && Math.abs(r.deviationPercent) > IMBALANCE_WARNING_PERCENT
+  );
 
   const copyToClipboard = () => {
     setCopyState('copied');
@@ -46,10 +50,22 @@ export default function TradePlan({ plan, mode, order, lookup }) {
         </div>
       )}
 
+      {flaggedResults.length > 0 && (
+        <div className="bg-amber-50 border border-amber-300 rounded p-4 mb-4">
+          <p className="text-amber-800 text-sm font-medium">
+            Review allocation: {flaggedResults.length} fund{flaggedResults.length === 1 ? '' : 's'}{' '}
+            {flaggedResults.length === 1 ? 'ends' : 'end'} more than 5 percentage points from target.
+          </p>
+          <p className="text-amber-700 text-xs mt-1">
+            Compare a higher trade count if that is too far from the intended allocation.
+          </p>
+        </div>
+      )}
+
       {plan.transfers.length === 0 && plan.feasible && (
         <div className="bg-green-50 border border-green-200 rounded p-4 mb-4">
           <p className="text-green-700">
-            No trades needed. All funds are at or within tolerance of their targets.
+            No trades needed. All funds are already at their targets.
           </p>
         </div>
       )}
@@ -163,25 +179,29 @@ export default function TradePlan({ plan, mode, order, lookup }) {
                     </td>
                     <td className="py-1 pr-2 text-right font-mono">{formatMoney(r.startCents)}</td>
                     <td className="py-1 pr-2 text-right text-gray-500">
-                      {r.startPercent.toFixed(2)}%
+                      {formatPercentValue(r.startPercent)}
                     </td>
                     <td className="py-1 pr-2 text-right font-mono">{formatMoney(r.targetCents)}</td>
                     <td className="py-1 pr-2 text-right text-gray-500">
-                      {r.targetPercent.toFixed(2)}%
+                      {formatPercentValue(r.targetPercent)}
                     </td>
                     <td className="py-1 pr-2 text-right font-mono">{formatMoney(r.endCents)}</td>
-                    <td className="py-1 pr-2 text-right">{r.endPercent.toFixed(2)}%</td>
+                    <td className="py-1 pr-2 text-right">{formatPercentValue(r.endPercent)}</td>
                     <td
                       className={`py-1 pr-2 text-right ${
-                        Math.abs(r.deviationPercent) > 0.05
-                          ? r.deviationPercent > 0
-                            ? 'text-green-600'
-                            : 'text-red-600'
-                          : 'text-gray-500'
+                        Math.abs(r.deviationPercent) > IMBALANCE_WARNING_PERCENT
+                          ? 'text-amber-700 font-semibold'
+                          : Math.abs(r.deviationPercent) > 0.05
+                            ? r.deviationPercent > 0
+                              ? 'text-green-600'
+                              : 'text-red-600'
+                            : 'text-gray-500'
                       }`}
                     >
-                      {r.deviationPercent >= 0 ? '+' : ''}
-                      {r.deviationPercent.toFixed(2)}%
+                      {formatPercentValue(r.deviationPercent, { signed: true })}
+                      {Math.abs(r.deviationPercent) > IMBALANCE_WARNING_PERCENT && (
+                        <span className="block text-[10px] uppercase tracking-wide">Review</span>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -192,15 +212,15 @@ export default function TradePlan({ plan, mode, order, lookup }) {
                   <td className="pt-2 text-right font-mono">
                     {formatMoney(plan.results.reduce((s, r) => s + r.startCents, 0))}
                   </td>
-                  <td className="pt-2 text-right">100.00%</td>
+                  <td className="pt-2 text-right">100%</td>
                   <td className="pt-2 text-right font-mono">
                     {formatMoney(plan.results.reduce((s, r) => s + r.targetCents, 0))}
                   </td>
-                  <td className="pt-2 text-right">100.00%</td>
+                  <td className="pt-2 text-right">100%</td>
                   <td className="pt-2 text-right font-mono">
                     {formatMoney(plan.results.reduce((s, r) => s + r.endCents, 0))}
                   </td>
-                  <td className="pt-2 text-right">100.00%</td>
+                  <td className="pt-2 text-right">100%</td>
                   <td></td>
                 </tr>
               </tfoot>

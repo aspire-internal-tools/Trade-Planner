@@ -6,10 +6,10 @@
 // - a From amount is also shown as a percent of that fund's starting balance
 //   (a switch form accepts "66.67%" of a fund);
 // - a To amount is also shown as a percent of the money being moved
-//   (destination allocations total 100.00%);
+//   (destination allocations total 100%);
 // - the Results Summary percents are shares of the total account balance.
 
-import { formatMoney, formatPercent } from './engine.js';
+import { formatMoney, formatPercent, formatPercentValue } from './engine.js';
 
 const BRAND_GREEN = '#157566';
 const CELL = 'border:1px solid #b9c4c2;padding:4px 10px;font-size:11pt;';
@@ -96,16 +96,16 @@ export function buildPlanText(plan, { mode = 'single', order = null, lookup = nu
   lines.push('-'.repeat(width));
 
   plan.results.forEach(r => {
-    const start = `${formatMoney(r.startCents)} (${r.startPercent.toFixed(2)}%)`;
-    const target = `${formatMoney(r.targetCents)} (${r.targetPercent.toFixed(2)}%)`;
-    const end = `${formatMoney(r.endCents)} (${r.endPercent.toFixed(2)}%)`;
+    const start = `${formatMoney(r.startCents)} (${formatPercentValue(r.startPercent)})`;
+    const target = `${formatMoney(r.targetCents)} (${formatPercentValue(r.targetPercent)})`;
+    const end = `${formatMoney(r.endCents)} (${formatPercentValue(r.endPercent)})`;
     lines.push(
       label(r.name).padEnd(28) +
         start.padStart(26) +
         target.padStart(26) +
         end.padStart(26) +
-        (r.endPercent.toFixed(2) + '%').padStart(10) +
-        ((r.deviationPercent >= 0 ? '+' : '') + r.deviationPercent.toFixed(2) + '%').padStart(9)
+        formatPercentValue(r.endPercent).padStart(10) +
+        formatPercentValue(r.deviationPercent, { signed: true }).padStart(9)
     );
   });
 
@@ -217,12 +217,12 @@ export function buildPlanHtml(plan, { mode = 'single', order = null, lookup = nu
         `<td style="${CELL}">${esc(f.code)}</td>` +
         `<td style="${CELL}">${esc(f.description)}</td>` +
         `<td style="${NUM}">${formatMoney(r.startCents)}</td>` +
-        `<td style="${NUM}">${r.startPercent.toFixed(2)}%</td>` +
+        `<td style="${NUM}">${formatPercentValue(r.startPercent)}</td>` +
         `<td style="${NUM}">${formatMoney(r.targetCents)}</td>` +
-        `<td style="${NUM}">${r.targetPercent.toFixed(2)}%</td>` +
+        `<td style="${NUM}">${formatPercentValue(r.targetPercent)}</td>` +
         `<td style="${NUM}">${formatMoney(r.endCents)}</td>` +
-        `<td style="${NUM}">${r.endPercent.toFixed(2)}%</td>` +
-        `<td style="${NUM}">${(r.deviationPercent >= 0 ? '+' : '') + r.deviationPercent.toFixed(2)}%</td>` +
+        `<td style="${NUM}">${formatPercentValue(r.endPercent)}</td>` +
+        `<td style="${NUM}">${formatPercentValue(r.deviationPercent, { signed: true })}</td>` +
         '</tr>'
       );
     })

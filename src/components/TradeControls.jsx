@@ -14,15 +14,12 @@ export default function TradeControls({
   surplusCount,
   mandatoryCount,
 }) {
+  const hasTradeOptions = surplusCount > 0;
   const maxUseful = Math.max(surplusCount, 1);
   const minUseful = Math.max(mandatoryCount, 1);
 
   const pickCount = n => {
     setConstraints(prev => ({ ...prev, maxTransfers: n }));
-  };
-
-  const setNoLimit = () => {
-    setConstraints(prev => ({ ...prev, maxTransfers: null }));
   };
 
   return (
@@ -78,17 +75,29 @@ export default function TradeControls({
           </label>
           <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Maximum trades">
             {Array.from({ length: MAX_NOTCHES }, (_, i) => i + 1).map(n => {
-              const usable = n >= minUseful && n <= maxUseful;
-              const selected = constraints.maxTransfers === n;
+              const usable = hasTradeOptions && n >= minUseful && n <= maxUseful;
+              const selected =
+                hasTradeOptions &&
+                (constraints.maxTransfers === n ||
+                  (constraints.maxTransfers === null && n === maxUseful));
               return (
                 <button
                   key={n}
-                  onClick={() => usable && pickCount(n)}
+                  onClick={() =>
+                    usable &&
+                    (n === maxUseful
+                      ? setConstraints(prev => ({ ...prev, maxTransfers: null }))
+                      : pickCount(n))
+                  }
                   disabled={!usable}
                   aria-pressed={selected}
                   title={
-                    usable
-                      ? `${n} trade${n > 1 ? 's' : ''}`
+                    !hasTradeOptions
+                      ? 'Enter valid balances and targets to see available trade counts'
+                      : usable
+                      ? n === maxUseful
+                        ? `${n} trade${n > 1 ? 's' : ''}, exact target`
+                        : `${n} trade${n > 1 ? 's' : ''}, compare the ending allocation`
                       : n < minUseful
                         ? `${mandatoryCount} closing fund(s) require at least ${minUseful} trade(s)`
                         : `This plan never needs more than ${maxUseful} trade(s)`
@@ -105,60 +114,12 @@ export default function TradeControls({
                 </button>
               );
             })}
-            <button
-              onClick={setNoLimit}
-              aria-pressed={constraints.maxTransfers === null}
-              className={`px-3 h-9 rounded-full border text-sm transition-colors ${
-                constraints.maxTransfers === null
-                  ? 'bg-aspire text-white border-aspire'
-                  : 'bg-white text-gray-700 border-gray-300 hover:border-aspire hover:text-aspire'
-              }`}
-            >
-              No limit
-            </button>
           </div>
           <p className="text-xs text-gray-500 mt-2">
-            Greyed notches cannot apply to this plan: counts above the number of funds with money
-            to move are never used, and counts below the number of closing funds cannot empty
-            them all.
+            {hasTradeOptions
+              ? 'Choose fewer trades to compare convenience against allocation fit. The highest available number reaches the exact targets. Greyed numbers cannot apply to this plan.'
+              : 'Enter valid balances and targets to see the available trade counts.'}
           </p>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Tolerance</label>
-          <div className="flex items-center gap-3">
-            <select
-              className="border rounded px-2 py-1 text-sm"
-              value={constraints.toleranceType}
-              onChange={e => setConstraints(prev => ({ ...prev, toleranceType: e.target.value }))}
-              aria-label="Tolerance type"
-            >
-              <option value="exact">Exact (zero tolerance)</option>
-              <option value="percent">Ignore imbalances under X% of total</option>
-              <option value="dollar">Ignore imbalances under $X</option>
-            </select>
-
-            {constraints.toleranceType !== 'exact' && (
-              <div className="flex items-center gap-1">
-                {constraints.toleranceType === 'dollar' && <span className="text-gray-400">$</span>}
-                <input
-                  type="number"
-                  min="0"
-                  step={constraints.toleranceType === 'percent' ? '0.1' : '1'}
-                  className="w-24 border rounded px-2 py-1 text-right text-sm"
-                  value={constraints.toleranceValue}
-                  onChange={e =>
-                    setConstraints(prev => ({
-                      ...prev,
-                      toleranceValue: parseFloat(e.target.value) || 0,
-                    }))
-                  }
-                  aria-label="Tolerance value"
-                />
-                {constraints.toleranceType === 'percent' && <span className="text-gray-400">%</span>}
-              </div>
-            )}
-          </div>
         </div>
 
         {surplusCount > 0 && (

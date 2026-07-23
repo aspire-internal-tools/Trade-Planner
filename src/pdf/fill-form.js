@@ -19,7 +19,7 @@ async function sha256Hex(bytes) {
     .join('');
 }
 
-/** Amount cell text for one row: dollars or a two-decimal percentage. */
+/** Amount cell text for one row: dollars or a percentage with up to two decimals. */
 export function amountText(row, amountStyle) {
   if (amountStyle === 'percent') return row.percentText;
   return formatMoney(row.amountCents);

@@ -29,46 +29,34 @@ export default function About({ open, onClose, onLoadDemo }) {
 
         <div className="space-y-5 text-sm text-gray-700">
           <section>
-            <h3 className="font-semibold text-base mb-1">What this tool is for</h3>
-            <p>
-              The Trade Planner turns a current fund allocation and a target allocation into the
-              smallest practical set of trades: as little processing as possible while getting the
-              ending balances as close as possible to the target balances. You enter the funds you
-              hold, the mix you want, and any limit on the number of trades; the tool computes the
-              plan, exact to the cent, with a two-decimal percentage beside every dollar amount.
-            </p>
+            <h3 className="font-semibold text-base mb-2">Find a practical trade plan</h3>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Enter the current funds and target allocation.</li>
+              <li>Compare fewer trades with the exact-target plan.</li>
+              <li>Review every ending balance and imbalance before deciding.</li>
+            </ul>
           </section>
 
           <section>
-            <h3 className="font-semibold text-base mb-1">How it works</h3>
-            <p>
-              Every fund's distance from its target splits the funds into sources (money must
-              leave) and destinations (money must arrive). Each source fund has to send money out
-              at least once, so the number of source funds is the true minimum number of trades,
-              and the tool always achieves it. All arithmetic uses whole cents, money out always
-              equals money in, and the same inputs always produce the same plan. There is no AI
-              and no black box; the plan can be checked by hand.
-            </p>
-            <p className="mt-2">
-              Two trade structures are supported: <strong>Single-From trades</strong> (each trade
-              moves money out of one fund, matching segregated fund switches) and a{' '}
-              <strong>Multi-From order</strong> (one consolidated order pulling from several funds
-              at once, matching mutual fund internal transfer conversions). The output can be
-              copied into Word, printed, or downloaded as a partially filled insurer form with
-              every other field left blank and fillable.
-            </p>
+            <h3 className="font-semibold text-base mb-2">What to compare</h3>
+            <dl className="grid sm:grid-cols-[9rem_1fr] gap-x-3 gap-y-2">
+              <dt className="font-medium">Single-From</dt>
+              <dd>One source fund per trade.</dd>
+              <dt className="font-medium">Multi-From</dt>
+              <dd>Several source funds on one two-sided order.</dd>
+              <dt className="font-medium">5% review warning</dt>
+              <dd>Flags a fund ending more than 5 percentage points from target. It does not hide the option.</dd>
+              <dt className="font-medium">Output</dt>
+              <dd>Copy, print, or download a partially filled insurer form.</dd>
+            </dl>
           </section>
 
           <section>
             <h3 className="font-semibold text-base mb-1">Live demos</h3>
             <p className="mb-2">
-              Each demo fills the whole page with example data so you can watch a complete use
-              case. All codes and balances are made-up examples.
+              Each example starts with fewer trades selected. Click the other trade counts to
+              compare the ending allocation with the exact-target plan.
             </p>
-            <div className="bg-amber-50 border border-amber-200 rounded px-3 py-2 mb-3 text-amber-700">
-              Loading a demo replaces everything currently entered in the tool. You will be asked
-              to confirm if you have data on the page.
-            </div>
             <ul className="space-y-2">
               {DEMOS.map(demo => (
                 <li key={demo.id} className="border rounded-lg p-3">
@@ -91,13 +79,11 @@ export default function About({ open, onClose, onLoadDemo }) {
 
           <section>
             <h3 className="font-semibold text-base mb-1">Your data</h3>
-            <p>
-              Everything runs inside your browser. Nothing you type is sent anywhere: no server
-              receives the numbers, no database stores them, and nothing is saved to the computer.
-              Closing the tab erases everything; each use starts blank. Use fund codes and generic
-              labels, never client names. What you do with the copied, printed, or downloaded
-              output follows Aspire's normal document-handling practices.
-            </p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Calculations stay in this browser tab and are not saved.</li>
+              <li>Use fund codes or generic labels, never client names.</li>
+              <li>Handle exported files under Aspire's normal practices.</li>
+            </ul>
           </section>
 
           <section className="text-xs text-gray-400 border-t pt-3">
