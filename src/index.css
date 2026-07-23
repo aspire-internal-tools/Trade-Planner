@@ -1,0 +1,46 @@
+/* Brand fonts are self-hosted via @fontsource imports in main.jsx so the
+   app makes no external network requests. */
+@import "tailwindcss";
+
+/* Aspire brand palette (Reference/Brand and Identity.md) */
+@theme {
+  --color-aspire: #157566;
+  --color-aspire-dark: #10574c;
+  --color-aspire-light: #308d7f;
+  --color-aspire-tint: #e6f1ef;
+  --color-aspire-gold: #be903e;
+  --color-aspire-ink: #292c34;
+  --font-heading: "Work Sans", system-ui, sans-serif;
+  --font-body: "Open Sans", system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-[#F2F2F2] text-aspire-ink min-h-screen;
+    font-family: var(--font-body);
+  }
+  h1, h2 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+  }
+  h3 {
+    font-family: var(--font-heading);
+    font-weight: 400;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white;
+  }
+  .print-only {
+    display: block !important;
+  }
+}
+
+.print-only {
+  display: none;
+}
