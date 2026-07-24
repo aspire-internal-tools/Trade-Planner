@@ -1,5 +1,6 @@
 import { formatMoney, formatPercentValue } from '../engine';
 import { fundIdentifier, findDuplicateIdentifiers } from '../funds';
+import { autofillDescriptionOnCodeChange } from '../fund-autofill';
 
 function targetIsClosed(target) {
   return target.source === 'current' && (target.status === 'close' || Number(target.targetValue) === 0);
@@ -17,6 +18,10 @@ export default function TargetFunds({
       previous.map(target => {
         if (target.id !== id) return target;
         const next = { ...target, [field]: value };
+        if (field === 'code') {
+          const description = autofillDescriptionOnCodeChange(target.code, value);
+          if (description !== null) next.description = description;
+        }
         if (field === 'code' || field === 'description') next.name = fundIdentifier(next);
         if (field === 'targetValue' && Number(value) > 0) next.status = 'target';
         return next;
@@ -75,21 +80,12 @@ export default function TargetFunds({
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
-        <div>
-          <h2 className="text-xl font-semibold">Step 2: Target Funds</h2>
-          <p className="text-sm text-gray-500 mt-2 max-w-2xl">
-            Describe what should exist after the trades. Set a target for every current fund,
-            mark a fund closed, or enter 0% or $0 to close it. Add new destination funds here.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={addTarget}
-          className="shrink-0 bg-aspire text-white px-4 py-2 rounded hover:bg-aspire-dark text-sm"
-        >
-          + Add Target Fund
-        </button>
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold">Step 2: Target Funds</h2>
+        <p className="text-sm text-gray-500 mt-2 max-w-2xl">
+          Describe what should exist after the trades. Set a target for every current fund,
+          mark a fund closed, or enter 0% or $0 to close it. Add new destination funds below.
+        </p>
       </div>
 
       {targets.length === 0 ? (
@@ -250,13 +246,24 @@ export default function TargetFunds({
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={distributeEvenly}
-        className="mt-4 text-sm text-aspire hover:text-aspire-dark underline"
-      >
-        Distribute remaining percentage evenly
-      </button>
+      <div className="flex justify-between items-center mt-4">
+        <button
+          type="button"
+          onClick={addTarget}
+          className="bg-aspire text-white px-4 py-2 rounded hover:bg-aspire-dark text-sm"
+        >
+          + Add Target Fund
+        </button>
+        {targets.length > 0 && (
+          <button
+            type="button"
+            onClick={distributeEvenly}
+            className="text-sm text-aspire hover:text-aspire-dark underline"
+          >
+            Distribute remaining percentage evenly
+          </button>
+        )}
+      </div>
     </div>
   );
 }

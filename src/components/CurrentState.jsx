@@ -2,6 +2,7 @@ import { toCents, toDollars, formatMoney, formatPercentValue } from '../engine';
 import { parsePastedRows, applyPastedRows } from '../paste';
 import { fundIsBlank, findDuplicateIdentifiers } from '../funds';
 import { parseDollarInput } from '../money-input';
+import { autofillDescriptionOnCodeChange } from '../fund-autofill';
 
 function balancesFromPercentages(accounts, totalCents) {
   const percentTotal = accounts.reduce(
@@ -42,7 +43,15 @@ export default function CurrentState({
 
   const updateAccount = (id, field, value) => {
     setAccounts(prev => {
-      const changed = prev.map(a => (a.id === id ? { ...a, [field]: value } : a));
+      const changed = prev.map(a => {
+        if (a.id !== id) return a;
+        const next = { ...a, [field]: value };
+        if (field === 'code') {
+          const description = autofillDescriptionOnCodeChange(a.code, value);
+          if (description !== null) next.description = description;
+        }
+        return next;
+      });
       return field === 'percentage'
         ? balancesFromPercentages(changed, enteredTotalCents)
         : changed;
@@ -94,9 +103,8 @@ export default function CurrentState({
     <div className="bg-white rounded-lg shadow p-6">
       <h2 className="text-xl font-semibold mb-4">Step 1: Current State</h2>
       <p className="text-sm text-gray-500 mb-4">
-        Capture only what the client holds today. Enter each current fund and either its balance,
-        or the account total and each fund's current percentage. Decisions about closing, changing,
-        or adding funds happen in Step 2.
+        Enter each fund the client holds, with either its balance, or the account total and each
+        fund's percentage.
       </p>
 
       <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1 mb-5" role="group" aria-label="Current state entry method">
@@ -159,7 +167,7 @@ export default function CurrentState({
                     <input
                       type="text"
                       className="w-full border rounded px-2 py-1"
-                      placeholder="e.g. FND 101"
+                      placeholder="e.g. A050A"
                       value={acct.code}
                       onChange={e => updateAccount(acct.id, 'code', e.target.value)}
                       onPaste={handlePaste(acct.id, 'code')}

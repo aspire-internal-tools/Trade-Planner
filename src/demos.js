@@ -4,8 +4,9 @@
 // compare a reduced-trade plan with the exact-target plan. Each scenario
 // intentionally has at least two valid trade counts.
 //
-// All fund codes and descriptions are anonymous examples, never real
-// client data.
+// Fund codes and descriptions are real Canada Life segregated funds (and match
+// what the code autofill produces). Balances, targets, and scenarios are
+// illustrative only, never real client data.
 
 export const DEMOS = [
   {
@@ -16,16 +17,16 @@ export const DEMOS = [
     state: {
       mode: 'single',
       accounts: [
-        { code: 'FND 101', description: 'Canadian Equity', balance: '44000.00', status: 'keep' },
-        { code: 'FND 102', description: 'Global Equity', balance: '33000.00', status: 'keep' },
-        { code: 'FND 103', description: 'Fixed Income', balance: '14000.00', status: 'keep' },
-        { code: 'FND 104', description: 'Cash', balance: '9000.00', status: 'keep' },
+        { code: 'A050A', description: 'Canadian Equity', balance: '44000.00', status: 'keep' },
+        { code: 'A065A', description: 'Global Equity', balance: '33000.00', status: 'keep' },
+        { code: 'A023A', description: 'Canadian Core Bond', balance: '14000.00', status: 'keep' },
+        { code: 'A001A', description: 'Money Market', balance: '9000.00', status: 'keep' },
       ],
       targets: [
-        { name: 'FND 101', targetType: 'percentage', targetValue: 40 },
-        { name: 'FND 102', targetType: 'percentage', targetValue: 30 },
-        { name: 'FND 103', targetType: 'percentage', targetValue: 15 },
-        { name: 'FND 104', targetType: 'percentage', targetValue: 15 },
+        { name: 'A050A', targetType: 'percentage', targetValue: 40 },
+        { name: 'A065A', targetType: 'percentage', targetValue: 30 },
+        { name: 'A023A', targetType: 'percentage', targetValue: 15 },
+        { name: 'A001A', targetType: 'percentage', targetValue: 15 },
       ],
       constraints: { maxTransfers: 1 },
     },
@@ -38,16 +39,16 @@ export const DEMOS = [
     state: {
       mode: 'single',
       accounts: [
-        { code: 'FND 201', description: 'Money Market', balance: '20000.00' },
-        { code: 'FND 202', description: 'Global Balanced', balance: '40000.00', status: 'keep' },
-        { code: 'FND 203', description: 'Canadian Bond', balance: '25000.00', status: 'keep' },
-        { code: 'FND 204', description: 'Global Equity', balance: '15000.00', status: 'keep' },
+        { code: 'A001A', description: 'Money Market', balance: '20000.00' },
+        { code: 'A034A', description: 'Global Balanced', balance: '40000.00', status: 'keep' },
+        { code: 'A023A', description: 'Canadian Core Bond', balance: '25000.00', status: 'keep' },
+        { code: 'A065A', description: 'Global Equity', balance: '15000.00', status: 'keep' },
       ],
       targets: [
-        { name: 'FND 201', targetType: 'percentage', targetValue: 0, status: 'close' },
-        { name: 'FND 202', targetType: 'percentage', targetValue: 45 },
-        { name: 'FND 203', targetType: 'percentage', targetValue: 20 },
-        { name: 'FND 204', targetType: 'percentage', targetValue: 35 },
+        { name: 'A001A', targetType: 'percentage', targetValue: 0, status: 'close' },
+        { name: 'A034A', targetType: 'percentage', targetValue: 45 },
+        { name: 'A023A', targetType: 'percentage', targetValue: 20 },
+        { name: 'A065A', targetType: 'percentage', targetValue: 35 },
       ],
       constraints: { maxTransfers: 1 },
     },
@@ -60,19 +61,19 @@ export const DEMOS = [
     state: {
       mode: 'single',
       accounts: [
-        { code: 'FND 301', description: 'Dividend Growth', balance: '55000.00', status: 'keep' },
-        { code: 'FND 302', description: 'Global Bond', balance: '30000.00', status: 'keep' },
-        { code: 'FND 303', description: 'Canadian Equity', balance: '15000.00', status: 'keep' },
+        { code: 'A058A', description: 'Canadian Dividend', balance: '55000.00', status: 'keep' },
+        { code: 'A139A', description: 'Sustainable Global Bond', balance: '30000.00', status: 'keep' },
+        { code: 'A050A', description: 'Canadian Equity', balance: '15000.00', status: 'keep' },
       ],
       targets: [
-        { name: 'FND 301', targetType: 'percentage', targetValue: 50 },
-        { name: 'FND 302', targetType: 'percentage', targetValue: 25 },
-        { name: 'FND 303', targetType: 'percentage', targetValue: 10 },
+        { name: 'A058A', targetType: 'percentage', targetValue: 50 },
+        { name: 'A139A', targetType: 'percentage', targetValue: 25 },
+        { name: 'A050A', targetType: 'percentage', targetValue: 10 },
         {
           source: 'new',
-          code: 'FND 304',
-          description: 'Emerging Markets',
-          name: 'FND 304',
+          code: 'A111A',
+          description: 'Emerging Markets Equity',
+          name: 'A111A',
           targetType: 'percentage',
           targetValue: 15,
         },
@@ -88,16 +89,16 @@ export const DEMOS = [
     state: {
       mode: 'single',
       accounts: [
-        { code: 'FND 401', description: 'Canadian Equity', balance: '46800.00', status: 'keep' },
-        { code: 'FND 402', description: 'US Equity', balance: '40800.00', status: 'keep' },
-        { code: 'FND 403', description: 'International Equity', balance: '18000.00', status: 'keep' },
-        { code: 'FND 404', description: 'Fixed Income', balance: '14400.00', status: 'keep' },
+        { code: 'A050A', description: 'Canadian Equity', balance: '46800.00', status: 'keep' },
+        { code: 'A074A', description: 'U.S. Growth', balance: '40800.00', status: 'keep' },
+        { code: 'A072A', description: 'International Equity', balance: '18000.00', status: 'keep' },
+        { code: 'A023A', description: 'Canadian Core Bond', balance: '14400.00', status: 'keep' },
       ],
       targets: [
-        { name: 'FND 401', targetType: 'percentage', targetValue: 30 },
-        { name: 'FND 402', targetType: 'percentage', targetValue: 30 },
-        { name: 'FND 403', targetType: 'percentage', targetValue: 20 },
-        { name: 'FND 404', targetType: 'percentage', targetValue: 20 },
+        { name: 'A050A', targetType: 'percentage', targetValue: 30 },
+        { name: 'A074A', targetType: 'percentage', targetValue: 30 },
+        { name: 'A072A', targetType: 'percentage', targetValue: 20 },
+        { name: 'A023A', targetType: 'percentage', targetValue: 20 },
       ],
       constraints: { maxTransfers: 1 },
     },
@@ -110,16 +111,16 @@ export const DEMOS = [
     state: {
       mode: 'multi',
       accounts: [
-        { code: 'MF 510', description: 'Canadian Equity', balance: '34000.00', status: 'keep' },
-        { code: 'MF 511', description: 'US Equity', balance: '29000.00', status: 'keep' },
-        { code: 'MF 512', description: 'International Equity', balance: '22000.00', status: 'keep' },
-        { code: 'MF 610', description: 'Balanced Fund', balance: '15000.00', status: 'keep' },
+        { code: 'A050A', description: 'Canadian Equity', balance: '34000.00', status: 'keep' },
+        { code: 'A074A', description: 'U.S. Growth', balance: '29000.00', status: 'keep' },
+        { code: 'A072A', description: 'International Equity', balance: '22000.00', status: 'keep' },
+        { code: 'A034A', description: 'Global Balanced', balance: '15000.00', status: 'keep' },
       ],
       targets: [
-        { name: 'MF 510', targetType: 'percentage', targetValue: 30 },
-        { name: 'MF 511', targetType: 'percentage', targetValue: 25 },
-        { name: 'MF 512', targetType: 'percentage', targetValue: 20 },
-        { name: 'MF 610', targetType: 'percentage', targetValue: 25 },
+        { name: 'A050A', targetType: 'percentage', targetValue: 30 },
+        { name: 'A074A', targetType: 'percentage', targetValue: 25 },
+        { name: 'A072A', targetType: 'percentage', targetValue: 20 },
+        { name: 'A034A', targetType: 'percentage', targetValue: 25 },
       ],
       constraints: { maxTransfers: 2 },
     },
