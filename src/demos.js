@@ -17,10 +17,10 @@ export const DEMOS = [
     state: {
       mode: 'single',
       accounts: [
-        { code: 'A050A', description: 'Canadian Equity', balance: '44000.00', status: 'keep' },
-        { code: 'A065A', description: 'Global Equity', balance: '33000.00', status: 'keep' },
-        { code: 'A023A', description: 'Canadian Core Bond', balance: '14000.00', status: 'keep' },
-        { code: 'A001A', description: 'Money Market', balance: '9000.00', status: 'keep' },
+        { code: 'A050A', description: 'CAN Canadian Equity', balance: '44000.00', status: 'keep' },
+        { code: 'A065A', description: 'CAN Global Equity', balance: '33000.00', status: 'keep' },
+        { code: 'A023A', description: 'CAN Canadian Core Bond', balance: '14000.00', status: 'keep' },
+        { code: 'A001A', description: 'CAN Money Market', balance: '9000.00', status: 'keep' },
       ],
       targets: [
         { name: 'A050A', targetType: 'percentage', targetValue: 40 },
@@ -39,10 +39,10 @@ export const DEMOS = [
     state: {
       mode: 'single',
       accounts: [
-        { code: 'A001A', description: 'Money Market', balance: '20000.00' },
-        { code: 'A034A', description: 'Global Balanced', balance: '40000.00', status: 'keep' },
-        { code: 'A023A', description: 'Canadian Core Bond', balance: '25000.00', status: 'keep' },
-        { code: 'A065A', description: 'Global Equity', balance: '15000.00', status: 'keep' },
+        { code: 'A001A', description: 'CAN Money Market', balance: '20000.00' },
+        { code: 'A034A', description: 'CAN Global Balanced', balance: '40000.00', status: 'keep' },
+        { code: 'A023A', description: 'CAN Canadian Core Bond', balance: '25000.00', status: 'keep' },
+        { code: 'A065A', description: 'CAN Global Equity', balance: '15000.00', status: 'keep' },
       ],
       targets: [
         { name: 'A001A', targetType: 'percentage', targetValue: 0, status: 'close' },
@@ -61,9 +61,9 @@ export const DEMOS = [
     state: {
       mode: 'single',
       accounts: [
-        { code: 'A058A', description: 'Canadian Dividend', balance: '55000.00', status: 'keep' },
-        { code: 'A139A', description: 'Sustainable Global Bond', balance: '30000.00', status: 'keep' },
-        { code: 'A050A', description: 'Canadian Equity', balance: '15000.00', status: 'keep' },
+        { code: 'A058A', description: 'CAN Canadian Dividend', balance: '55000.00', status: 'keep' },
+        { code: 'A139A', description: 'CAN Sustainable Global Bond', balance: '30000.00', status: 'keep' },
+        { code: 'A050A', description: 'CAN Canadian Equity', balance: '15000.00', status: 'keep' },
       ],
       targets: [
         { name: 'A058A', targetType: 'percentage', targetValue: 50 },
@@ -72,7 +72,7 @@ export const DEMOS = [
         {
           source: 'new',
           code: 'A111A',
-          description: 'Emerging Markets Equity',
+          description: 'CAN Emerging Markets Equity',
           name: 'A111A',
           targetType: 'percentage',
           targetValue: 15,
@@ -89,10 +89,10 @@ export const DEMOS = [
     state: {
       mode: 'single',
       accounts: [
-        { code: 'A050A', description: 'Canadian Equity', balance: '46800.00', status: 'keep' },
-        { code: 'A074A', description: 'U.S. Growth', balance: '40800.00', status: 'keep' },
-        { code: 'A072A', description: 'International Equity', balance: '18000.00', status: 'keep' },
-        { code: 'A023A', description: 'Canadian Core Bond', balance: '14400.00', status: 'keep' },
+        { code: 'A050A', description: 'CAN Canadian Equity', balance: '46800.00', status: 'keep' },
+        { code: 'A074A', description: 'CAN U.S. Growth', balance: '40800.00', status: 'keep' },
+        { code: 'A072A', description: 'CAN International Equity', balance: '18000.00', status: 'keep' },
+        { code: 'A023A', description: 'CAN Canadian Core Bond', balance: '14400.00', status: 'keep' },
       ],
       targets: [
         { name: 'A050A', targetType: 'percentage', targetValue: 30 },
@@ -111,10 +111,10 @@ export const DEMOS = [
     state: {
       mode: 'multi',
       accounts: [
-        { code: 'A050A', description: 'Canadian Equity', balance: '34000.00', status: 'keep' },
-        { code: 'A074A', description: 'U.S. Growth', balance: '29000.00', status: 'keep' },
-        { code: 'A072A', description: 'International Equity', balance: '22000.00', status: 'keep' },
-        { code: 'A034A', description: 'Global Balanced', balance: '15000.00', status: 'keep' },
+        { code: 'A050A', description: 'CAN Canadian Equity', balance: '34000.00', status: 'keep' },
+        { code: 'A074A', description: 'CAN U.S. Growth', balance: '29000.00', status: 'keep' },
+        { code: 'A072A', description: 'CAN International Equity', balance: '22000.00', status: 'keep' },
+        { code: 'A034A', description: 'CAN Global Balanced', balance: '15000.00', status: 'keep' },
       ],
       targets: [
         { name: 'A050A', targetType: 'percentage', targetValue: 30 },

@@ -178,7 +178,7 @@ export default function CurrentState({
                     <input
                       type="text"
                       className="w-full border rounded px-2 py-1"
-                      placeholder="e.g. Canadian Equity"
+                      placeholder="e.g. CAN Canadian Equity"
                       value={acct.description}
                       onChange={e => updateAccount(acct.id, 'description', e.target.value)}
                       onPaste={handlePaste(acct.id, 'description')}
